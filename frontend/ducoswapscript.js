@@ -25,7 +25,7 @@ if(window.ethereum) {
 }
 
 async function unwrapDUCO() {
-	amount = document.getElementById("amountInput").innerHTML
+	amount = document.getElementById("amountInput").value
 	amount = web3.utils.toWei(amount)
 	username = document.getElementById("usernameInput").value
 	if (username != "") {
