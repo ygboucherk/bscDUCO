@@ -1,4 +1,4 @@
-async refreshBalances() {
+async function refreshBalances() {
 	document.getElementById("balancelabel").innerHTML = (await duco.methods.balanceOf(currentAddress))/10**18;
 }
 
@@ -25,7 +25,7 @@ if(window.ethereum) {
 	alert("No Web3-compatible wallet installed, please consider installing one !")
 }
 
-async unwrapDUCO() {
+async function unwrapDUCO() {
 	amount = document.getElementById("amountInput").innerHTML
 	amount = web3.utils.toWei(amount)
 	username = document.getElementById("usernameInput").value
