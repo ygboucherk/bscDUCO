@@ -1,5 +1,5 @@
 async function refreshBalances() {
-	document.getElementById("balancelabel").innerHTML = (await duco.methods.balanceOf(currentAddress))/10**18;
+	document.getElementById("balancelabel").innerHTML = (await duco.methods.balanceOf(currentAddress).call())/10**18;
 }
 
 if(window.ethereum) {
@@ -7,7 +7,6 @@ if(window.ethereum) {
 	window.ethereum.enable().then(function (receipt) {
 		currentAddress = receipt[0];
 		window.web3 = new Web3(window.ethereum);
-		document.getElementById("addresslabel").innerHTML = "Address : " + currentAddress;
 		if (web3.currentProvider.chainId == 56) {
 		  console.log("Correctly connected to BSC");
 		  window.correctRpc = true;
@@ -30,7 +29,7 @@ async function unwrapDUCO() {
 	amount = web3.utils.toWei(amount)
 	username = document.getElementById("usernameInput").value
 	if (username != "") {
-		if ((await duco.methods.balanceOf(currentAddress)) >= amount) {
+		if ((await duco.methods.balanceOf(currentAddress).call()) >= amount) {
 			duco.methods.initiateWithdraw(username, amount).send({'from':currentAddress});
 		}
 	}
