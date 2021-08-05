@@ -29,8 +29,14 @@ async function unwrapDUCO() {
 	amount = web3.utils.toWei(amount)
 	username = document.getElementById("usernameInput").value
 	if (username != "") {
-		if ((await duco.methods.balanceOf(currentAddress).call()) >= amount) {
+		if (Number(await duco.methods.balanceOf(currentAddress).call()) >= Number(amount)) {
 			duco.methods.initiateWithdraw(username, amount).send({'from':currentAddress});
 		}
+		else {
+            alert("Insufficient balance")
+		}
+	}
+	else {
+        alert("No username specified")
 	}
 }
