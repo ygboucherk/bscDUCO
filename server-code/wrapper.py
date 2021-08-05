@@ -45,6 +45,7 @@ def setupChain(chainid, contractAddress, _gasprice, rpc):
     token[chainid] = network[chainid].eth.contract(address=contractAddress, abi=abi)
 
 setupChain(56, "0xCF572cA0AB84d8Ce1652b175e930292E2320785b", 5000000000, "https://bsc-dataseed3.binance.org")
+setupChain(137, "0xaf965beB8C830aE5dc8280d1c7215B8F0aCC0CeA", 5000000000, "https://matic-mainnet-full-rpc.bwarelabs.com")
 setupChain(97, Web3.toChecksumAddress("0x911f311dfff09680adc3a433e03c57e2cb4945b2"), 10000000000, "https://data-seed-prebsc-1-s1.binance.org:8545")
 
 
