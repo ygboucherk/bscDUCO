@@ -104,11 +104,11 @@ def processWithdawToken(address, amount):
         return False
 
 
-def processDepositToken(address, username, amount):
+def processDepositToken(username, address, amount):
     global network, token, gasprice, config, _chainid
     try:
         _network = network[_chainid]
-        tx = token[_chainid].functions.confirmWithdraw(address, username, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
+        tx = token[_chainid].functions.confirmWithdraw(username, address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
@@ -121,6 +121,24 @@ def processDepositToken(address, username, amount):
     except:
         return False
 
+def cancelDepositToken(username, address):
+    global network, token, gasprice, config, _chainid
+    try:
+        _network = network[_chainid]
+        tx = token[_chainid].functions.cancelWithdrawals(address, username).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
+        tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
+        txid = _network.toHex(_network.keccak(tx.rawTransaction))
+        print("txid :",txid)
+        _network.eth.send_raw_transaction(tx.rawTransaction)
+        receipt = _network.eth.waitForTransactionReceipt(txid)
+        if receipt['status'] == 0:
+            return False
+        else:
+            return True
+    except:
+        return False
+
+
 def withdrawToWrapped(address):
     global _chainid, pendingBalancesToken
     amount = float(pendingBalancesToken[address])
@@ -129,7 +147,7 @@ def withdrawToWrapped(address):
     if not feedback:
         pendingBalancesToken[address] = amount
     saveDB()
-  
+
 def checkDepositsToken():
     global pendingBalances, _chainid, token
     users = token[_chainid].functions.getUserList().call()
@@ -166,9 +184,10 @@ def processWithdraw(username):
     if (pendingBalances[username] > 0):
         _amount = pendingBalances[username]
         pendingBalances[username] = 0
+        usernameMemo = username.split(",")
         socket = Wallet()
         socket.login(username=wrapperUsername, password=wrapperPassword)
-        feedback = socket.transfer(recipient_username=username, amount=_amount)
+        feedback = socket.transfer(recipient_username=usernameMemo[0], amount=_amount, memo=usernameMemo[1])
         print(feedback)
         if "NO" in feedback:
             pendingBalances[username] = _amount

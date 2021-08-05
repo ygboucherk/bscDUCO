@@ -224,13 +224,13 @@ class Wallet:
         user_balance = self.sock.recv(1024).decode()
         return user_balance
 
-    def transfer(self, recipient_username, amount):
+    def transfer(self, recipient_username, amount, memo):
         '''
         A function for transfering balance between two accounts
         '''
         self._connect_socket()
 
-        self.sock.send(f'SEND,-,{recipient_username},{amount}'.encode())
+        self.sock.send(f'SEND,{memo},{recipient_username},{amount}'.encode())
         try:
             transfer_response = self.sock.recv(128).decode()
         except socket.timeout:
