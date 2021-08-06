@@ -186,9 +186,14 @@ def processWithdraw(username):
         _amount = pendingBalances[username]
         pendingBalances[username] = 0
         usernameMemo = username.split(",")
+        _username = usernameMemo[0]
+        try:
+            _memo = usernameMemo[1]
+        except:
+            _memo = "-"
         socket = Wallet()
         socket.login(username=wrapperUsername, password=wrapperPassword)
-        feedback = socket.transfer(recipient_username=usernameMemo[0], amount=_amount, memo=usernameMemo[1])
+        feedback = socket.transfer(recipient_username=username, amount=_amount, memo=_memo)
         print(feedback)
         if "NO" in feedback:
             pendingBalances[username] = _amount
@@ -215,7 +220,10 @@ def processAllWithdrawals():
 ###################################
 # Loop in order to refresh constantly and process stuff
 while True:
-    checkDepositsDuco()
+    try:
+        checkDepositsDuco()
+    except:
+        pass
     checkDepositsToken()
     processAllWithdrawals()
     processAllWithdrawalsToken()
