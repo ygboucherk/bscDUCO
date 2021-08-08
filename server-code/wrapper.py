@@ -1,5 +1,5 @@
 import requests, time, json, eth_account
-global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi, wrapperUsername, wrapperPassword, alreadyProcessed, config
+global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi, wrapperUsername, wrapperPassword, alreadyProcessed, config, currentBalance
 from duco_api import Wallet
 from web3 import Web3
 
@@ -17,7 +17,7 @@ abi = """[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"an
 
 alreadyProcessed = []
 pendingBalances = {} # good old mappings
-
+currentBalance = 0
 
 
 ###########################
@@ -44,9 +44,11 @@ def setupChain(chainid, contractAddress, _gasprice, rpc):
     gasprice[chainid] = _gasprice
     token[chainid] = network[chainid].eth.contract(address=contractAddress, abi=abi)
 
-setupChain(56, "0xCF572cA0AB84d8Ce1652b175e930292E2320785b", 5000000000, "https://bsc-dataseed3.binance.org")
-setupChain(137, "0xaf965beB8C830aE5dc8280d1c7215B8F0aCC0CeA", 5000000000, "https://matic-mainnet-full-rpc.bwarelabs.com")
-setupChain(97, Web3.toChecksumAddress("0x911f311dfff09680adc3a433e03c57e2cb4945b2"), 10000000000, "https://data-seed-prebsc-1-s1.binance.org:8545")
+chainsfile = open("chains.json", "r")
+chains = json.load(chainsfile)
+chainsfile.close()
+for key, value in chains.items():
+    setupChain(int(key), value["contract"], value["gas"]*(10**9), value["rpc"])
 
 
 def loadDB():
@@ -89,7 +91,7 @@ def isValid(address):
 
 def processWithdawToken(address, amount):
     global network, token, gasprice, config, _chainid
-    try:        
+    try:
         _network = network[_chainid]
         tx = token[_chainid].functions.wrap(address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
@@ -172,19 +174,24 @@ def checkDepositsToken():
 # DUCO network functions
 
 def checkDepositsDuco():
-    global pendingBalancesToken, alreadyProcessed
-    txs = requests.get("https://server.duinocoin.com/transactions").json()
-    for key, value in txs["result"].items():
-        if value["recipient"] == wrapperUsername and not (key in alreadyProcessed):
-            alreadyProcessed += [key]
-            if (isValid(value["memo"])):
-                pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + value["amount"]
-                print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
-            else:
-                pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
-            saveDB()
-    saveDB()
-
+    global pendingBalancesToken, alreadyProcessed, currentBalance
+    _balance = requests.get(f"https://server.duinocoin.com/balances/{wrapperUsername}").json()["result"]["balance"]
+    if (_balance != currentBalance):
+        currentBalance = _balance
+        txs = requests.get("https://server.duinocoin.com/transactions").json()
+        for key, value in txs["result"].items():
+            if value["recipient"] == wrapperUsername and not (key in alreadyProcessed):
+                alreadyProcessed += [key]
+                if (isValid(value["memo"])):
+                    pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + value["amount"]
+                    print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
+                else:
+                    pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
+                    saveDB()
+        saveDB()
+    else:
+        pass
+        
 def processWithdraw(username):
     if (pendingBalances[username] > 0):
         _amount = pendingBalances[username]
@@ -197,7 +204,7 @@ def processWithdraw(username):
             _memo = "-"
         socket = Wallet()
         socket.login(username=wrapperUsername, password=wrapperPassword)
-        feedback = socket.transfer(recipient_username=username, amount=_amount, memo=_memo)
+        feedback = socket.transfer(recipient_username=_username, amount=_amount, memo=_memo)
         print(feedback)
         if "NO" in feedback:
             pendingBalances[username] = _amount
