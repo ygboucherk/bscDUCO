@@ -154,11 +154,14 @@ def checkDepositsToken():
     users = token[_chainid].functions.getUserList().call()
     for i in range(len(users)):
         user = users[i]
-        pendingUnwraps = user[2]/10**18
-        if pendingUnwraps > 0:
-            receipt = processDepositToken(user[1], user[0], pendingUnwraps)
-            if receipt:
-                pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + pendingUnwraps
+        if (user[1].split(",")[0] != wrapperUsername):
+            pendingUnwraps = user[2]/10**18
+            if pendingUnwraps > 0:
+                receipt = processDepositToken(user[1], user[0], pendingUnwraps)
+                if receipt:
+                    pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + pendingUnwraps
+        else:
+            cancelDepositToken(user[1], user[0])
     saveDB()
 
 
@@ -227,4 +230,4 @@ while True:
     checkDepositsToken()
     processAllWithdrawals()
     processAllWithdrawalsToken()
-    time.sleep(15)
+    time.sleep(60)
