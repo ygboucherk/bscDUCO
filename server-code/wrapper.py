@@ -228,7 +228,8 @@ while True:
         checkDepositsDuco()
     except:
         pass
-    checkDepositsToken()
+    else:
+        checkDepositsToken()
     processAllWithdrawals()
     processAllWithdrawalsToken()
     time.sleep(60)
