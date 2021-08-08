@@ -161,7 +161,8 @@ def checkDepositsToken():
                 if receipt:
                     pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + pendingUnwraps
         else:
-            cancelDepositToken(user[1], user[0])
+            if (user[2] > 0):
+                cancelDepositToken(user[1], user[0])
     saveDB()
 
 
