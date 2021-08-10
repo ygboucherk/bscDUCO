@@ -50,6 +50,13 @@ chainsfile.close()
 for key, value in chains.items():
     setupChain(int(key), value["contract"], value["gas"]*(10**9), value["rpc"])
 
+def gasPrice(chainid):
+    try:
+        gasapi = chains[str(chainid)]["gasapi"]
+        return min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"])
+    except:
+        return gasprice[chainid]
+
 
 def loadDB():
     global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi, wrapperUsername, wrapperPassword, alreadyProcessed, config
@@ -93,7 +100,7 @@ def processWithdawToken(address, amount):
     global network, token, gasprice, config, _chainid
     try:
         _network = network[_chainid]
-        tx = token[_chainid].functions.wrap(address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
+        tx = token[_chainid].functions.wrap(address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
@@ -111,7 +118,7 @@ def processDepositToken(username, address, amount):
     global network, token, gasprice, config, _chainid
     try:
         _network = network[_chainid]
-        tx = token[_chainid].functions.confirmWithdraw(username, address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
+        tx = token[_chainid].functions.confirmWithdraw(username, address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
@@ -128,7 +135,7 @@ def cancelDepositToken(username, address):
     global network, token, gasprice, config, _chainid
     try:
         _network = network[_chainid]
-        tx = token[_chainid].functions.cancelWithdrawals(address, username).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasprice[_chainid], 'from':config["address"]})
+        tx = token[_chainid].functions.cancelWithdrawals(address, username).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
@@ -158,10 +165,13 @@ def checkDepositsToken():
         user = users[i]
         if (user[1].split(",")[0] != wrapperUsername):
             pendingUnwraps = user[2]/10**18
+            fees = (pendingUnwraps*config["fee"])/100
+            unwrapWithoutFees = pendingUnwraps - fees
             if pendingUnwraps > 0:
                 receipt = processDepositToken(user[1], user[0], pendingUnwraps)
                 if receipt:
-                    pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + pendingUnwraps
+                    pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + unwrapWithoutFees
+                    pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + fees
         else:
             if (user[2] > 0):
                 cancelDepositToken(user[1], user[0])
@@ -185,6 +195,8 @@ def checkDepositsDuco():
                 if (isValid(value["memo"])):
                     pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + value["amount"]
                     print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
+                elif value["memo"] == "burn":
+                    pass
                 else:
                     pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
                     saveDB()

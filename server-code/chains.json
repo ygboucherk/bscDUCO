@@ -7,11 +7,7 @@
 	"137": {
 		"rpc":"https://rpc-mainnet.maticvigil.com/",
 		"gas":10,
-		"contract":"0xaf965beB8C830aE5dc8280d1c7215B8F0aCC0CeA"
-	},
-	"97": {
-		"rpc":"https://rpc-mainnet.maticvigil.com/",
-		"gas":10,
-		"contract":"0xaf965beB8C830aE5dc8280d1c7215B8F0aCC0CeA"
+		"contract":"0xaf965beB8C830aE5dc8280d1c7215B8F0aCC0CeA",
+		"gasapi":"https://gasstation-mainnet.matic.network/"
 	}
 }
