@@ -22,3 +22,7 @@ Feel free to visit [the unwrapping dApp](https://bsc.duinocoin.com/) in order to
 maticDUCO also works (using same way, but custody account is [maticDUCO](https://explorer.duinocoin.com/?search=maticDUCO) and token [0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea](https://polygonscan.com/token/0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea)), with same unwrap blockchain
 
 And more chains are planned in the future (like harmony or celo) !
+
+
+## Some other stuff
+In-custody DUCO shall always be more or equal to token's supply. If custody is below token's supply, that means tokens are unbacked (we are not tether), and and please raise an issue immediately !
