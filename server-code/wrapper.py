@@ -157,6 +157,7 @@ def withdrawToWrapped(address):
     print(f"Withdrawing {amount} to {address}")
     pendingBalancesToken[address] = 0
     feedback = processWithdawToken(address, amount)
+    print(f"feedback : {feedback}")
     if not feedback:
         pendingBalancesToken[address] = amount
     saveDB()
@@ -210,19 +211,23 @@ def checkDepositsDuco(forceRecheck):
 def processWithdraw(username):
     if (pendingBalances[username] > 0):
         _amount = pendingBalances[username]
-        print(f"Withdrawing {_amount} to {username}")
-        pendingBalances[username] = 0
-        usernameMemo = username.split(",")
-        _username = usernameMemo[0]
         try:
-            _memo = usernameMemo[1]
-        except:
-            _memo = "-"
-        socket = Wallet()
-        socket.login(username=wrapperUsername, password=wrapperPassword)
-        feedback = socket.transfer(recipient_username=_username, amount=_amount, memo=_memo)
-        print(feedback)
-        if "NO" in feedback:
+            print(f"Withdrawing {_amount} to {username}")
+            pendingBalances[username] = 0
+            usernameMemo = username.split(",")
+            _username = usernameMemo[0]
+            try:
+                _memo = usernameMemo[1]
+            except:
+                _memo = "-"
+            socket = Wallet()
+            socket.login(username=wrapperUsername, password=wrapperPassword)
+            feedback = socket.transfer(recipient_username=_username, amount=_amount, memo=_memo)
+            print(feedback)
+            if "NO" in feedback:
+                pendingBalances[username] = _amount
+        except Exception as e:
+            print(e)
             pendingBalances[username] = _amount
     saveDB()
 
