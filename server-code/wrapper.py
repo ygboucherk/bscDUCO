@@ -53,9 +53,9 @@ for key, value in chains.items():
 def gasPrice(chainid):
     try:
         gasapi = chains[str(chainid)]["gasapi"]
-        return int(min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"])*10**9)
+        return int(min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"]))
     except:
-        return int(gasprice[chainid]*(10**9))
+        return int(gasprice[chainid])
 
 
 def loadDB():
@@ -110,7 +110,8 @@ def processWithdawToken(address, amount):
             return False
         else:
             return True
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 
@@ -145,13 +146,15 @@ def cancelDepositToken(username, address):
             return False
         else:
             return True
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 
 def withdrawToWrapped(address):
     global _chainid, pendingBalancesToken
     amount = float(pendingBalancesToken[address])
+    print(f"Withdrawing {amount} to {address}")
     pendingBalancesToken[address] = 0
     feedback = processWithdawToken(address, amount)
     if not feedback:
@@ -207,6 +210,7 @@ def checkDepositsDuco(forceRecheck):
 def processWithdraw(username):
     if (pendingBalances[username] > 0):
         _amount = pendingBalances[username]
+        print(f"Withdrawing {_amount} to {username}")
         pendingBalances[username] = 0
         usernameMemo = username.split(",")
         _username = usernameMemo[0]
@@ -248,9 +252,17 @@ while True:
         checkDepositsDuco(n%4 == 0)
     except Exception as e:
         print(e)
-    else:
-        checkDepositsToken()
-    processAllWithdrawals()
-    processAllWithdrawalsToken()
+    try:
+       checkDepositsToken()
+    except Exception as e:
+        print(e)
+    try:
+        processAllWithdrawals()
+    except Exception as e:
+        print(e)
+    try:
+        processAllWithdrawalsToken()
+    except Exception as e:
+        print(e)
     n += 1
     time.sleep(15)
