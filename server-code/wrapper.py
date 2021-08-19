@@ -53,9 +53,9 @@ for key, value in chains.items():
 def gasPrice(chainid):
     try:
         gasapi = chains[str(chainid)]["gasapi"]
-        return min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"])
+        return int(min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"])*10**9)
     except:
-        return gasprice[chainid]
+        return int(gasprice[chainid]*(10**9))
 
 
 def loadDB():
@@ -183,10 +183,10 @@ def checkDepositsToken():
 #####################################
 # DUCO network functions
 
-def checkDepositsDuco():
+def checkDepositsDuco(forceRecheck):
     global pendingBalancesToken, alreadyProcessed, currentBalance
     _balance = requests.get(f"https://server.duinocoin.com/balances/{wrapperUsername}").json()["result"]["balance"]
-    if (_balance != currentBalance):
+    if (_balance != currentBalance or forceRecheck):
         currentBalance = _balance
         txs = requests.get("https://server.duinocoin.com/transactions").json()
         for key, value in txs["result"].items():
@@ -242,13 +242,15 @@ def processAllWithdrawals():
 
 ###################################
 # Loop in order to refresh constantly and process stuff
+n = 0
 while True:
     try:
-        checkDepositsDuco()
-    except:
-        pass
+        checkDepositsDuco(n%4 == 0)
+    except Exception as e:
+        print(e)
     else:
         checkDepositsToken()
     processAllWithdrawals()
     processAllWithdrawalsToken()
-    time.sleep(60)
+    n += 1
+    time.sleep(15)
