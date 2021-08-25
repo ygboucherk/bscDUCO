@@ -119,7 +119,7 @@ def processDepositToken(username, address, amount):
     global network, token, gasprice, config, _chainid
     try:
         _network = network[_chainid]
-        tx = token[_chainid].functions.confirmWithdraw(username, address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
+        tx = token[_chainid].functions.confirmWithdraw(username, address, min(token[_chainid].functions.pendingWithdrawals(address, username).call(),int(float(amount)*(10**18)))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
