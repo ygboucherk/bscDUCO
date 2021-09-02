@@ -53,9 +53,9 @@ for key, value in chains.items():
 def gasPrice(chainid):
     try:
         gasapi = chains[str(chainid)]["gasapi"]
-        return int(min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"]))
+        return int(min(requests.get(gasapi).json()["fast"], chains[str(chainid)]["gas"])*config["gasMultiplier"])
     except:
-        return int(gasprice[chainid])
+        return int(int(gasprice[chainid])*config["gasMultiplier"])
 
 
 def loadDB():

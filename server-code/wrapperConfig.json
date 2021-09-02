@@ -3,5 +3,6 @@
 	"password": "",
 	"privateKey": "",
 	"chainid": 56,
-	"dataBaseFile": "bscWrapperDB.json"
+	"dataBaseFile": "bscWrapperDB.json",
+	"gasMultiplier": 1
 }
