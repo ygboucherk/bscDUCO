@@ -1,4 +1,4 @@
-import requests, time, json, eth_account
+import requests, time, json, eth_account, os
 global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi, wrapperUsername, wrapperPassword, alreadyProcessed, config, currentBalance
 from duco_api import Wallet
 from web3 import Web3
@@ -84,6 +84,22 @@ def saveDB():
 
 
 loadDB()
+
+###########################
+# Checkpoint stuff (beta)
+
+def saveCheckpoint():
+    try:
+        pathToCheckpoint = config['checkPointPath']
+        if pathToCheckpoint:
+            result = os.system(f"cp -r {config['dataBaseFile']} {pathToCheckpoint}")
+            if (result == 0):
+                print("Successfully saved checkpoint !")
+            else:
+                print("Error saving checkpoint...")
+    except Exception as e:
+        print(e)
+
 ###########################
 # Token related functions
 
@@ -186,27 +202,30 @@ def checkDepositsToken():
 
 #####################################
 # DUCO network functions
+def txlistToMapping(_list):
+    returnValue = {}
+    for i in _list:
+        returnValue[i["hash"]] = i
+    return returnValue
 
 def checkDepositsDuco(forceRecheck):
     global pendingBalancesToken, alreadyProcessed, currentBalance
-    _balance = requests.get(f"https://server.duinocoin.com/balances/{wrapperUsername}").json()["result"]["balance"]
-    if (_balance != currentBalance or forceRecheck):
-        currentBalance = _balance
-        txs = requests.get("https://server.duinocoin.com/transactions").json()
-        for key, value in txs["result"].items():
-            if value["recipient"] == wrapperUsername and not (key in alreadyProcessed):
-                alreadyProcessed += [key]
-                if (isValid(value["memo"])):
-                    pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + value["amount"]
-                    print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
-                elif value["memo"] == "burn":
-                    pass
-                else:
-                    pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
-                    saveDB()
-        saveDB()
+    if (forceRecheck):
+        txs = requests.get("https://server.duinocoin.com/transactions").json()["result"]
     else:
-        pass
+        txs = txlistToMapping(requests.get(f"https://server.duinocoin.com/users/{wrapperUsername}").json()["result"]["transactions"])
+    for key, value in txs.items():
+        if value["recipient"] == wrapperUsername and not (key in alreadyProcessed):
+            alreadyProcessed += [key]
+            if (isValid(value["memo"])):
+                pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + value["amount"]
+                print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
+            elif value["memo"] == "burn":
+                pass
+            else:
+                pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
+                saveDB()
+    saveDB()
         
 def processWithdraw(username):
     if (pendingBalances[username] > 0):
@@ -254,7 +273,7 @@ def processAllWithdrawals():
 n = 0
 while True:
     try:
-        checkDepositsDuco(n%4 == 0)
+        checkDepositsDuco(n%10 == 0)
     except Exception as e:
         print(e)
     try:
@@ -269,5 +288,7 @@ while True:
         processAllWithdrawalsToken()
     except Exception as e:
         print(e)
+    if (n%500 == 0):
+        saveCheckpoint()
     n += 1
-    time.sleep(15)
+    time.sleep(30)

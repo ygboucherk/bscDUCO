@@ -4,5 +4,7 @@
 	"privateKey": "",
 	"chainid": 56,
 	"dataBaseFile": "bscWrapperDB.json",
+	"fee":0,
+	"feeRecipient":"Yanis",
 	"gasMultiplier": 1
 }
