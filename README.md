@@ -19,7 +19,13 @@ Feel free to visit [the unwrapping dApp](https://bsc.duinocoin.com/) in order to
 
 
 ## Other chains
-maticDUCO also works (using same way, but custody account is [maticDUCO](https://explorer.duinocoin.com/?search=maticDUCO) and token [0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea](https://polygonscan.com/token/0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea)), with same unwrap blockchain
+### Polygon
+Custody account : [maticDUCO](https://explorer.duinocoin.com/?search=maticDUCO) 
+Token : [0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea](https://polygonscan.com/token/0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea)
+
+### Celo
+Custody account : [celoDUCO](https://explorer.duinocoin.com/?search=celoDUCO) 
+Token : [0xDB452CC669D3Ae454226AbF232Fe211bAfF2a1F9](https://explorer.celo.org/tokens/0xDB452CC669D3Ae454226AbF232Fe211bAfF2a1F9/)
 
 And more chains are planned in the future (like harmony or celo) !
 
