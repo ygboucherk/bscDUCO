@@ -24,7 +24,7 @@ As this system can easily be ported to other EVM chains, we can have duco almost
 
 It uses same custody system but different config !!!
 
-[Wrap/ubwrap dApp](https://bsc.duinocoin.com/) automatically detects when metmask is connected to another network, and will automatically switch token !
+[Wrap/nbwrap dApp](https://bsc.duinocoin.com/) automatically detects when metmask is connected to another network, and will automatically switch token !
 
 ### Polygon
 Custody account : [maticDUCO](https://explorer.duinocoin.com/?search=maticDUCO)
