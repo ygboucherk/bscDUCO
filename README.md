@@ -12,13 +12,19 @@ Custody account : [bscDUCO](https://explorer.duinocoin.com/?search=bscDUCO)
 
 ### How to get bscDUCO ?
 If you send DUCO to custody account (bscDUCO) and use your bsc address as memo, transaction will be automatically processed !
-
+*note: Tech is still in beta and could lead to loss of funds, don't wrap too big amounts !!!*
 
 ### How to get back DUCO ?
 Feel free to visit [the unwrapping dApp](https://bsc.duinocoin.com/) in order to unwrap them !
 
 
 ## Other chains
+As this system can easily be ported to other EVM chains, we can have duco almost everywhere !
+
+It uses same custody system but different config !!!
+
+[Wrap/ubwrap dApp](https://bsc.duinocoin.com/) automatically detects when metmask is connected to another network, and will automatically switch token !
+
 ### Polygon
 Custody account : [maticDUCO](https://explorer.duinocoin.com/?search=maticDUCO) 
 Token : [0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea](https://polygonscan.com/token/0xaf965beb8c830ae5dc8280d1c7215b8f0acc0cea)
