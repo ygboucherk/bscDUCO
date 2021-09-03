@@ -181,8 +181,7 @@ def withdrawToWrapped(address):
 def checkDepositsToken():
     global pendingBalances, _chainid, token
     users = token[_chainid].functions.getUserList().call()
-    for i in range(len(users)):
-        user = users[i]
+    for user in users:
         if (user[1].split(",")[0] != wrapperUsername):
             pendingUnwraps = user[2]/10**18
             fees = (pendingUnwraps*config["fee"])/100
