@@ -32,6 +32,17 @@ def loadConfig(configfile):
     wrapperUsername = config["username"]
     wrapperPassword = config["password"]
     _chainid = config["chainid"]
+    try:
+        _shallUseApi = config["apifortxs"]
+    except Exception as e:
+        print(e)
+        _shallUseApi = False
+        print("Using socket for sending transactions")
+    if (_shallUseApi):
+        print("Using API for sending transactions")
+    else:
+        print("Using socket for sending transactions")
+    config["apifortxs"] = _shallUseApi
     config["address"] = eth_account.Account.privateKeyToAccount(config["privateKey"]).address
     config["privateKey"] = bytes.fromhex(config["privateKey"])
     print(f"Server address : {config['address']}")
@@ -238,11 +249,15 @@ def processWithdraw(username):
                 _memo = usernameMemo[1]
             except:
                 _memo = "-"
-            socket = Wallet()
-            socket.login(username=wrapperUsername, password=wrapperPassword)
-            feedback = socket.transfer(recipient_username=_username, amount=_amount, memo=_memo)
+            if (config["apifortxs"]):
+                feedback = requests.get(f"https://server.duinocoin.com/transaction/?username={wrapperUsername}&password={wrapperPassword}&recipient={_username.replace('&', '')}&amount={_amount}&memo={_memo}").json()["result"]
+            else:
+                socket = Wallet()
+                socket.login(username=wrapperUsername, password=wrapperPassword)
+                feedback = socket.transfer(recipient_username=_username, amount=_amount, memo=_memo)
+                socket.logout()
             print(feedback)
-            if "NO" in feedback:
+            if not "OK" in feedback:
                 pendingBalances[username] = _amount
         except Exception as e:
             print(e)
