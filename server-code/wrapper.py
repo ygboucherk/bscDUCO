@@ -132,7 +132,7 @@ def processWithdawToken(address, amount):
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
         _network.eth.send_raw_transaction(tx.rawTransaction)
-        receipt = _network.eth.waitForTransactionReceipt(txid)
+        receipt = _network.eth.wait_for_transaction_receipt(txid, timeout=300)
         if receipt['status'] == 0:
             return False
         else:
@@ -151,7 +151,7 @@ def processDepositToken(username, address, amount):
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
         _network.eth.send_raw_transaction(tx.rawTransaction)
-        receipt = _network.eth.waitForTransactionReceipt(txid)
+        receipt = _network.eth.wait_for_transaction_receipt(txid, timeout=300)
         if receipt['status'] == 0:
             return False
         else:
