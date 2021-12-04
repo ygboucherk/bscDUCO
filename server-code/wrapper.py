@@ -12,13 +12,12 @@ _configLocation = "wrapperConfig.json"
 
 
 
-
 abi = """[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_address","type":"address"}],"name":"RevokeWrapper","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_address","type":"address"},{"indexed":false,"internalType":"uint256","name":"_amount","type":"uint256"},{"indexed":true,"internalType":"string","name":"_ducoUsername","type":"string"}],"name":"UnwrapConfirmed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_address","type":"address"},{"indexed":false,"internalType":"uint256","name":"_amount","type":"uint256"},{"indexed":true,"internalType":"string","name":"_ducoUsername","type":"string"}],"name":"UnwrapInitiated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_address","type":"address"},{"indexed":false,"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"Wrap","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_address","type":"address"}],"name":"allowWrapper","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_oldAdmin","type":"address"},{"indexed":true,"internalType":"address","name":"_newAdmin","type":"address"}],"name":"changeAdminConfirmed","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"_currentAdmin","type":"address"},{"indexed":true,"internalType":"address","name":"_newAdmin","type":"address"}],"name":"changeAdminRequest","type":"event"},{"inputs":[{"internalType":"address","name":"_address","type":"address"}],"name":"ChangeAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_address","type":"address"}],"name":"addWrapperAccess","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"cancelChangeAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_address","type":"address"},{"internalType":"string","name":"_ducousername","type":"string"}],"name":"cancelWithdrawals","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_address","type":"address"}],"name":"checkWrapperStatus","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"confirmChangeAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ducousername","type":"string"},{"internalType":"address","name":"_address","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"confirmWithdraw","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"currentAdmin","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getUserList","outputs":[{"components":[{"internalType":"address","name":"_address","type":"address"},{"internalType":"string","name":"username","type":"string"},{"internalType":"uint256","name":"pendingBalance","type":"uint256"}],"internalType":"struct ERC20.addressUsername[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_ducousername","type":"string"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"initiateWithdraw","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_address","type":"address"},{"internalType":"string","name":"_ducousername","type":"string"}],"name":"pendingWithdrawals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"","type":"bytes"}],"name":"positionInList","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_address","type":"address"}],"name":"revokeWrapperAccess","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"","type":"bytes"}],"name":"userExists","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"usersList","outputs":[{"internalType":"address","name":"_address","type":"address"},{"internalType":"string","name":"username","type":"string"},{"internalType":"uint256","name":"pendingBalance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"usersListLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"_tronaddress","type":"address"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"wrap","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]"""
 
 alreadyProcessed = []
 pendingBalances = {} # good old mappings
 currentBalance = 0
-
+refunds = []
 
 ###########################
 
@@ -127,19 +126,26 @@ def processWithdawToken(address, amount):
     global network, token, gasprice, config, _chainid
     try:
         _network = network[_chainid]
-        tx = token[_chainid].functions.wrap(address, int(float(amount)*(10**18))).buildTransaction({'nonce': network[_chainid].eth.get_transaction_count(config["address"]),'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
+        _nonce_ = network[_chainid].eth.get_transaction_count(config["address"])
+        tx = token[_chainid].functions.wrap(address, int(float(amount)*(10**18))).buildTransaction({'nonce': _nonce_,'chainId': _chainid, 'gasPrice': gasPrice(_chainid), 'from':config["address"]})
         tx = _network.eth.account.sign_transaction(tx, config["privateKey"])
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
         _network.eth.send_raw_transaction(tx.rawTransaction)
-        receipt = _network.eth.wait_for_transaction_receipt(txid, timeout=300)
+        receipt = _network.eth.wait_for_transaction_receipt(txid, timeout=120)
+        print(receipt)
         if receipt['status'] == 0:
-            return False
+            return (False, False)
         else:
-            return True
+            return (True,False)
     except Exception as e:
+        try:
+            returnValue = (False,{"tx": txid, "tokens": amount, "to": address, "nonce": _nonce_})
+        except:
+            returnValue = (False, False)
+            print("Error marking failed TX, returning False")
         print(e)
-        return False
+        return returnValue
 
 
 def processDepositToken(username, address, amount):
@@ -151,7 +157,7 @@ def processDepositToken(username, address, amount):
         txid = _network.toHex(_network.keccak(tx.rawTransaction))
         print("txid :",txid)
         _network.eth.send_raw_transaction(tx.rawTransaction)
-        receipt = _network.eth.wait_for_transaction_receipt(txid, timeout=300)
+        receipt = _network.eth.wait_for_transaction_receipt(txid)
         if receipt['status'] == 0:
             return False
         else:
@@ -179,15 +185,29 @@ def cancelDepositToken(username, address):
 
 
 def withdrawToWrapped(address):
-    global _chainid, pendingBalancesToken
+    global _chainid, pendingBalancesToken, refunds
     amount = float(pendingBalancesToken[address])
     print(f"Withdrawing {amount} to {address}")
     pendingBalancesToken[address] = 0
     feedback = processWithdawToken(address, amount)
     print(f"feedback : {feedback}")
-    if not feedback:
+    if ((not feedback[0]) and (not feedback[1])):
         pendingBalancesToken[address] = amount
+    elif (feedback[1]):
+        erroredTx = feedback[1]
+        refunds.append(erroredTx);
     saveDB()
+
+def checkRefunds():
+    global _chainid, pendingBalancesToken, refunds
+    for erroredTx in refunds:
+        try:
+            receipt = _network.eth.waitForTransactionReceipt(erroredTx["tx"])
+            print(f"Tx {erroredTx['tx']} exists on chain, not gonna refund anything !")
+        except:
+            pendingBalancesToken[erroredTx["to"]] += erroredTx["tokens"]
+            print(f"Tx {erroredTx['tx']} not found, re-added {erroredTx['tokens']}")
+    refunds = []
 
 def checkDepositsToken():
     global pendingBalances, _chainid, token
@@ -236,7 +256,7 @@ def checkDepositsDuco(forceRecheck):
                 pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
                 saveDB()
     saveDB()
-        
+
 def processWithdraw(username):
     if (pendingBalances[username] > 0):
         _amount = pendingBalances[username]
@@ -250,7 +270,9 @@ def processWithdraw(username):
             except:
                 _memo = "-"
             if (config["apifortxs"]):
-                feedback = requests.get(f"https://server.duinocoin.com/transaction/?username={wrapperUsername}&password={wrapperPassword}&recipient={_username.replace('&', '')}&amount={_amount}&memo={_memo}").json()["result"]
+                feedbacka = requests.get(f"https://server.duinocoin.com/transaction/?username={wrapperUsername}&password={wrapperPassword}&recipient={_username.replace('&', '')}&amount={_amount}&memo={_memo}").json()
+                print(feedbacka)
+                feedback = feedbacka["result"]
             else:
                 socket = Wallet()
                 socket.login(username=wrapperUsername, password=wrapperPassword)
@@ -266,7 +288,7 @@ def processWithdraw(username):
 
 
 ###################################
-# stuff for processing all at once 
+# stuff for processing all at once
 def processAllWithdrawalsToken():
     global _chainid
     for key, value in pendingBalancesToken.items():
@@ -300,6 +322,10 @@ while True:
         print(e)
     try:
         processAllWithdrawalsToken()
+    except Exception as e:
+        print(e)
+    try:
+        checkRefunds()
     except Exception as e:
         print(e)
     if (n%500 == 0):
