@@ -50,7 +50,11 @@ loadConfig(_configLocation)
 
 def setupChain(chainid, contractAddress, _gasprice, rpc):
     global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi
-    network[chainid] = Web3(Web3.HTTPProvider(rpc))
+    _protocol_ = rpc.split(":")[0]
+    if ((_protocol_ == "https") or (_protocol_ == "http")):
+        network[chainid] = Web3(Web3.HTTPProvider(rpc))
+    elif ((_protocol_ == "wss") or (_protocol_ == "ws")):
+        network[chainid] = Web3(Web3.WebsocketProvider(rpc))
     gasprice[chainid] = _gasprice
     token[chainid] = network[chainid].eth.contract(address=contractAddress, abi=abi)
 
