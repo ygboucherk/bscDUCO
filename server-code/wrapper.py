@@ -249,10 +249,11 @@ def checkDepositsDuco(forceRecheck):
     else:
         txs = txlistToMapping(requests.get(f"https://server.duinocoin.com/users/{wrapperUsername}").json()["result"]["transactions"])
     for key, value in txs.items():
-        if value["recipient"] == wrapperUsername and not (key in alreadyProcessed):
+        if ((value["recipient"] == wrapperUsername) and (not (key in alreadyProcessed))):
             alreadyProcessed += [key]
-            if (isValid(value["memo"])):
-                pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + value["amount"]
+            if ((isValid(value["memo"])) and (int(value["amount"]) >= 300)):
+                pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + (value["amount"] - 300)
+                pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + 300
                 print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
             elif value["memo"] == "burn":
                 pass
