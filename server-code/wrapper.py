@@ -1,5 +1,5 @@
 import requests, time, json, eth_account, os
-global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi, wrapperUsername, wrapperPassword, alreadyProcessed, config, currentBalance
+global network, token, gasprice, _chainid, pendingBalances, pendingBalancesToken, abi, wrapperUsername, wrapperPassword, alreadyProcessed, config, currentBalance, wrapFee
 from duco_api import Wallet
 from web3 import Web3
 
@@ -18,6 +18,7 @@ alreadyProcessed = []
 pendingBalances = {} # good old mappings
 currentBalance = 0
 refunds = []
+wrapFee = 500
 
 ###########################
 
@@ -221,7 +222,7 @@ def checkDepositsToken():
             pendingUnwraps = user[2]/10**18
             fees = (pendingUnwraps*config["fee"])/100
             unwrapWithoutFees = pendingUnwraps - fees
-            if pendingUnwraps > 0:
+            if pendingUnwraps > 0 and (requests.get(f"https://server.duinocoin.com/users/{user[1].split(',')[0]}").json().get("success")):
                 receipt = processDepositToken(user[1], user[0], pendingUnwraps)
                 if receipt:
                     pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + unwrapWithoutFees
@@ -243,7 +244,7 @@ def txlistToMapping(_list):
     return returnValue
 
 def checkDepositsDuco(forceRecheck):
-    global pendingBalancesToken, alreadyProcessed, currentBalance
+    global pendingBalancesToken, alreadyProcessed, currentBalance, wrapFee
     if (forceRecheck):
         txs = requests.get("https://server.duinocoin.com/transactions").json()["result"]
     else:
@@ -251,9 +252,9 @@ def checkDepositsDuco(forceRecheck):
     for key, value in txs.items():
         if ((value["recipient"] == wrapperUsername) and (not (key in alreadyProcessed))):
             alreadyProcessed += [key]
-            if ((isValid(value["memo"])) and (int(value["amount"]) >= 300)):
-                pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + (value["amount"] - 300)
-                pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + 300
+            if ((isValid(value["memo"])) and (int(value["amount"]) >= wrapFee)):
+                pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + (value["amount"] - wrapFee)
+                pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + wrapFee
                 print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
             elif value["memo"] == "burn":
                 pass
