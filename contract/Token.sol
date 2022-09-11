@@ -16,7 +16,7 @@ contract Token is ERC20Detailed {
     /**
      * @dev Constructor that gives developper admin rights
      */
-    constructor () ERC20Detailed("Duino Coin on BSC", "bscDUCO", 18) {
+    constructor () ERC20Detailed("Duino Coin on RaptorChain", "rDUCO", 18) {
 		AdminAddress = msg.sender;
     }
 }
