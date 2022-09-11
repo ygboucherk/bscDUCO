@@ -36,6 +36,11 @@ Custody account : [celoDUCO](https://explorer.duinocoin.com/?search=celoDUCO)
 
 Token : [0xDB452CC669D3Ae454226AbF232Fe211bAfF2a1F9](https://explorer.celo.org/tokens/0xDB452CC669D3Ae454226AbF232Fe211bAfF2a1F9/)
 
+### RaptorChain
+Custody account : [rDUCO](https://explorer.duinocoin.com/?search=rDUCO)
+
+Token : [0x9ffE5c6EB6A8BFFF1a9a9DC07406629616c19d32](https://explorer.raptorchain.io/address/0x9ffE5c6EB6A8BFFF1a9a9DC07406629616c19d32/)
+
 
 ### More chains are planned in the future (like harmony) !
 
