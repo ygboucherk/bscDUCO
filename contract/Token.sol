@@ -19,4 +19,7 @@ contract Token is ERC20Detailed {
     constructor () ERC20Detailed("Duino Coin on RaptorChain", "rDUCO", 18) {
 		AdminAddress = msg.sender;
     }
+
+    receive() external payable {
+    }
 }
