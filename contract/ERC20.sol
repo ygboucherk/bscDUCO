@@ -36,10 +36,12 @@ contract ERC20 is IERC20 {
 	mapping (address => uint256) private pendingbalances; // pending deposits
 	mapping (address => mapping (string => uint256)) private pendingwds; // pending withdrawals/unwraps
 	mapping (address => bool)  private _wrapperAccesses; // wrapper accesses
+    mapping (address => bool) public bonusClaimed;
 	address AdminAddress; // default admin
 	address applyAdminAddress; // address that applies to be admin
 	address oldAdmin; // old admin in case of admin change
     uint256 private _totalSupply;
+    uint256 public welcomeAmount = 200000000000000000000;
 
 	struct addressUsername {
 		address _address;
@@ -272,6 +274,11 @@ contract ERC20 is IERC20 {
 		require(_wrapperAccesses[msg.sender]);
 		_balances[_tronaddress] = _balances[_tronaddress].add(_amount);
 		_totalSupply = _totalSupply.add(_amount);
+        uint256 _welcomeAmount = welcomeAmount;
+        if ((_tronaddress.balance == 0) && (address(this).balance >= _welcomeAmount) && (!bonusClaimed[_tronaddress])) {
+            payable(_tronaddress).transfer(_welcomeAmount);
+            bonusClaimed[_tronaddress] = true;
+        }
 		emit Transfer(address(0), _tronaddress, _amount);
 		emit Wrap(_tronaddress, _amount);
 		return true;
@@ -320,6 +327,11 @@ contract ERC20 is IERC20 {
 		return true;
 	}
 	
+    function changeWelcomeBonus(uint256 newBonus) public {
+        require(msg.sender == AdminAddress);
+        welcomeAmount = newBonus;
+    }
+
 	function ChangeAdmin(address _address) public returns (bool) {
 		require((msg.sender == AdminAddress) && (!(_address == AdminAddress)));
 		applyAdminAddress = _address;
