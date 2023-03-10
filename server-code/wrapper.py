@@ -256,7 +256,7 @@ def checkDepositsDuco(forceRecheck):
                 pendingBalancesToken[Web3.toChecksumAddress(value["memo"])] = (pendingBalancesToken.get(Web3.toChecksumAddress(value["memo"])) or 0) + (value["amount"] - wrapFee)
                 pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + wrapFee
                 print(f"Deposit received, address : {Web3.toChecksumAddress(value['memo'])}, txid : {key}")
-            elif value["memo"] == "burn":
+            elif ((value["memo"] == "burn") || ("staking" in (value["memo"].lower()))):
                 pass
             else:
                 pendingBalances[value["sender"]] = (pendingBalancesToken.get(value["sender"]) or 0) + value["amount"]
