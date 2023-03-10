@@ -315,7 +315,8 @@ def processAllWithdrawals():
 n = 0
 while True:
     try:
-        checkDepositsDuco(n%10 == 0)
+#        checkDepositsDuco(n%10 == 0)
+        checkDepositsDuco(False)
     except Exception as e:
         print(e)
     try:
