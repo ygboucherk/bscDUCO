@@ -17,8 +17,8 @@ class Wrapper(object):
         self.refunds = []
         self.wrapFee = 500
         
+        self.loadChains()
         self.loadConfig(_configLocation)
-        
         self.loadDB()
 
     ###########################
@@ -266,6 +266,9 @@ class Wrapper(object):
                 usernameMemo = username.split(",")
                 _username = usernameMemo[0].replace('&', '').replace('?', '')
                 _memo = usernameMemo[1].replace('&', '').replace('?', '') if (len(usernameMemo) > 1) else "-"
+                if not self.userExists(_username):
+                    print(f"User {_username} does not exist, ignoring...")
+                    return # skips rest of function, erases pending balance
                 if (self.config["apifortxs"]):
                     feedbacka = requests.get(f"https://server.duinocoin.com/transaction/?username={self.wrapperUsername}&password={self.wrapperPassword}&recipient={_username}&amount={_amount}&memo={_memo}").json()
                     print(feedbacka)
