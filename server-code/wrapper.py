@@ -205,13 +205,16 @@ def withdrawToWrapped(address):
 
 def checkRefunds():
     global _chainid, pendingBalancesToken, refunds
+    errorsfile = open("errors.err", "a")
     for erroredTx in refunds:
         try:
             receipt = _network.eth.waitForTransactionReceipt(erroredTx["tx"])
             print(f"Tx {erroredTx['tx']} exists on chain, not gonna refund anything !")
         except:
-            pendingBalancesToken[erroredTx["to"]] += erroredTx["tokens"]
-            print(f"Tx {erroredTx['tx']} not found, re-added {erroredTx['tokens']}")
+            errorsfile.write(f"{erroredTx['txid']} : {erroredTx['tokens']} to {erroredTx['to']}\n")
+#            pendingBalancesToken[erroredTx["to"]] += erroredTx["tokens"]
+#            print(f"Tx {erroredTx['tx']} not found, re-added {erroredTx['tokens']}")
+    errorsfile.close()
     refunds = []
 
 def checkDepositsToken():
