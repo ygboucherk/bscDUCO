@@ -6,19 +6,18 @@ abi = """[{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"an
 
 
 class Wrapper(object):
-    def __init__(self):
+    def __init__(self, _configLocation):
         self.gasprice = {}
         self.network = {}
         self.token = {}
-        self.configLocation = "wrapperConfig.json"
+        self.configLocation = _configLocation
         self.alreadyProcessed = []
-        self.pendingBalances = {} # good old mappings
-        self.currentBalance = 0
+        self.pendingBalances = {}
         self.refunds = []
         self.wrapFee = 500
         
         self.loadChains()
-        self.loadConfig(_configLocation)
+        self.loadConfig(self.configLocation)
         self.loadDB()
 
     ###########################
