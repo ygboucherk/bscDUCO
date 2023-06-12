@@ -184,7 +184,7 @@ class Wrapper(object):
     def withdrawToWrapped(self, address):
         amount = float(self.pendingBalancesToken[address])
         print(f"Withdrawing {amount} to {address}")
-        self.pendingBalancesToken[address] = 0
+        del self.pendingBalancesToken[address]
         feedback = self.processWithdawToken(address, amount)
         print(f"feedback : {feedback}")
         if ((not feedback[0]) and (not feedback[1])):
@@ -262,7 +262,7 @@ class Wrapper(object):
             _amount = self.pendingBalances[username]
             try:
                 print(f"Withdrawing {_amount} to {username}")
-                self.pendingBalances[username] = 0
+                del self.pendingBalances[username]  # deleting is more storage-efficient than setting to zero
                 usernameMemo = username.split(",")
                 _username = usernameMemo[0].replace('&', '').replace('?', '')
                 _memo = usernameMemo[1].replace('&', '').replace('?', '') if (len(usernameMemo) > 1) else "-"
