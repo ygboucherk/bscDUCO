@@ -198,7 +198,7 @@ class Wrapper(object):
         for erroredTx in self.refunds:
             try:
                 receipt = self.networks[self.chainid].eth.waitForTransactionReceipt(erroredTx["tx"])
-                print(f"Tx {erroredTx['tx']} exists on chain, not gonna refund anything !")
+                print(f"Tx {erroredTx['tx']} exists on chain, nothing to refund !")
             except:
                 errorsfile.write(f"{erroredTx['txid']} : {erroredTx['tokens']} to {erroredTx['to']}\n")
         errorsfile.close()
