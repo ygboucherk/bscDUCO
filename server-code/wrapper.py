@@ -113,7 +113,7 @@ def saveCheckpoint():
             else:
                 print("Error saving checkpoint...")
     except Exception as e:
-        print(e)
+        print("Error saving checkpoint:", e)
 
 ###########################
 # Token related functions
@@ -149,7 +149,7 @@ def processWithdawToken(address, amount):
         except:
             returnValue = (False, False)
             print("Error marking failed TX, returning False")
-        print(e)
+        print("Error in processWithdawToken:", e)
         return returnValue
 
 
@@ -296,7 +296,7 @@ def processWithdraw(username):
             if not "OK" in feedback:
                 pendingBalances[username] = _amount
         except Exception as e:
-            print(e)
+            print("Exception caught in processWithdraw:", e)
             pendingBalances[username] = _amount
     saveDB()
 
@@ -325,11 +325,11 @@ while True:
     try:
         checkDepositsDuco(n%60 == 0)
     except Exception as e:
-        print(e)
+        print("Error in checkDepositsDuco:", e)
     try:
        checkDepositsToken()
     except Exception as e:
-        print(e)
+        print("Error in checkDepositsToken:", e)
     try:
         processAllWithdrawals()
     except Exception as e:
@@ -337,11 +337,11 @@ while True:
     try:
         processAllWithdrawalsToken()
     except Exception as e:
-        print(e)
+        print("Error in processAllWithdrawalsToken:", e)
     try:
         checkRefunds()
     except Exception as e:
-        print(e)
+        print("Error in checkRefunds:", e)
     if (n%500 == 0):
         saveCheckpoint()
     n += 1
