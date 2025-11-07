@@ -225,11 +225,16 @@ def checkDepositsToken():
             pendingUnwraps = user[2]/10**18
             fees = (pendingUnwraps*config["fee"])/100
             unwrapWithoutFees = pendingUnwraps - fees
-            if pendingUnwraps > 0 and (requests.get(f"https://server.duinocoin.com/users/{user[1].split(',')[0]}").json().get("success")):
-                receipt = processDepositToken(user[1], user[0], pendingUnwraps)
-                if receipt:
-                    pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + unwrapWithoutFees
-                    pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + fees
+#            if user[2]:
+ #               print(user)
+            try:
+                if pendingUnwraps > 0 and (requests.get(f"https://server.duinocoin.com/users/{user[1].split(',')[0]}").json().get("success")):
+                    receipt = processDepositToken(user[1], user[0], pendingUnwraps)
+                    if receipt:
+                        pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + unwrapWithoutFees
+                        pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + fees
+            except Exception as e:
+                print(repr(e))
         else:
             if (user[2] > 0):
                 cancelDepositToken(user[1], user[0])
@@ -318,8 +323,7 @@ def processAllWithdrawals():
 n = 0
 while True:
     try:
-#        checkDepositsDuco(n%10 == 0)
-        checkDepositsDuco(False)
+        checkDepositsDuco(n%60 == 0)
     except Exception as e:
         print(e)
     try:
