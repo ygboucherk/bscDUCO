@@ -217,24 +217,33 @@ def checkRefunds():
     errorsfile.close()
     refunds = []
 
+def checkUsername(username):
+    j = requests.get(f"https://server.duinocoin.com/users/{username}").json()
+    # this happens when the server returns an error code
+    if type(j) == int:
+        return False
+    return j.get("success")
+
 def checkDepositsToken():
     global pendingBalances, _chainid, token
     users = token[_chainid].functions.getUserList().call()
     for user in users:
         if (user[1].split(",")[0] != wrapperUsername):
+            username = user[1].split(',')[0]
             pendingUnwraps = user[2]/10**18
             fees = (pendingUnwraps*config["fee"])/100
             unwrapWithoutFees = pendingUnwraps - fees
 #            if user[2]:
  #               print(user)
             try:
-                if pendingUnwraps > 0 and (requests.get(f"https://server.duinocoin.com/users/{user[1].split(',')[0]}").json().get("success")):
+                if pendingUnwraps > 0 and checkUsername(username):
                     receipt = processDepositToken(user[1], user[0], pendingUnwraps)
                     if receipt:
                         pendingBalances[user[1]] = (pendingBalances.get(user[1]) or 0) + unwrapWithoutFees
                         pendingBalances[config["feeRecipient"]] = (pendingBalances.get(config["feeRecipient"]) or 0) + fees
             except Exception as e:
-                print(repr(e))
+                print(username, pendingUnwraps)
+                print("Exception caught in checkDepositsToken:", repr(e))
         else:
             if (user[2] > 0):
                 cancelDepositToken(user[1], user[0])
