@@ -7,29 +7,59 @@
 		_chain = 0;
 		async function init() {
 			try {
-				if (window.ethereum) {
-					provider = new Web3(window.ethereum);
-					alert("ethereum found");
-				} else if (window.web3) {
-					provider = new Web3(window.web3);
-					alert("web3 found");
-				} else {
-					// Modern MetaMask (v12+) no longer injects window.ethereum by default;
-					// discover it via EIP-6963 events.
-					provider = await new Promise(function(resolve, reject) {
-						var found = false;
-						function onAnnounce(e) {
-							if (e.detail && e.detail.provider && !found) {
+				// Prefer EIP-6963 discovery (MetaMask's recommended mechanism). Phantom
+				// and others also inject window.ethereum, so grabbing that first can
+				// pick the wrong wallet. Collect announcements, prefer MetaMask by its
+				// stable rdns id, and only fall back to the injected provider after the
+				// announce window.
+				provider = await new Promise(function(resolve, reject) {
+					var found = false;
+					var seen = {};
+					var best = null;   // best provider seen so far (prefer MetaMask)
+					var bestIsMetaMask = false;
+					function isMetaMask(p) {
+						return p && p.info && p.info.rdns &&
+						       p.info.rdns.toLowerCase() === 'io.metamask';
+					}
+					function resolveBest() {
+						if (best && !found) { found = true; resolve(new Web3(best.provider)); }
+					}
+					function onAnnounce(e) {
+						if (!e.detail || !e.detail.provider) return;
+						var key = (e.detail.info && (e.detail.info.rdns || e.detail.info.uuid || e.detail.info.name)) || null;
+						if (key && seen[key]) return;
+						if (key) seen[key] = true;
+						var mm = isMetaMask(e.detail);
+						// Keep the first non-MetaMask as a candidate, but upgrade as soon as
+						// a MetaMask is found (so a Phantom that announces first does not
+						// hijack the connection).
+						if (!best || mm || (bestIsMetaMask && !mm)) {
+							best = e.detail;
+							bestIsMetaMask = mm;
+						}
+						if (bestIsMetaMask) resolveBest(); // MetaMask is preferred -> go now
+					}
+					window.addEventListener('eip6963:announceProvider', onAnnounce);
+					window.dispatchEvent(new Event('eip6963:requestProvider'));
+					// Wait out the announce window so MetaMask gets a chance to announce;
+					// then settle with the best (possibly non-MetaMask) provider, or the
+					// injected provider as a last resort for wallets without EIP-6963.
+					setTimeout(function() {
+						if (!found) {
+							if (best) {
+								resolveBest();
+							} else if (window.ethereum) {
 								found = true;
-								resolve(new Web3(e.detail.provider));
+								resolve(new Web3(window.ethereum));
+							} else if (window.web3 && window.web3.currentProvider) {
+								found = true;
+								resolve(new Web3(window.web3.currentProvider));
+							} else {
+								reject(new Error('No web3 wallet provider found'));
 							}
 						}
-						window.addEventListener('eip6963:announceProvider', onAnnounce);
-						window.dispatchEvent(new Event('eip6963:requestProvider'));
-						setTimeout(function() { if (!found) reject(new Error('No EIP-6963 wallet provider found')); }, 3000);
-					});
-					alert("ethereum found via EIP-6963");
-				}
+					}, 600);
+				});
 				addrs = await provider.eth.requestAccounts();
 				_chain = await provider.eth.getChainId();
 			} catch (e) {

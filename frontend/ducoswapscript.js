@@ -654,58 +654,100 @@ function connectWallet(provider) {
 
 function noWalletFound() {
     window.metamaskInstalled = false;
-    document.getElementById("networklabel").innerHTML = "Network : Please install a web3 compatible wallet";
+    // The #networklabel element may not exist on every page - guard it so the
+    // install alert below always runs even when the element is missing.
+    try {
+        document.getElementById("networklabel").innerHTML = "Network : Please install a web3 compatible wallet";
+    } catch (ignored) {}
     alert("No Web3-compatible wallet installed, please consider installing one !")
 }
 
 function detectWallet() {
-    // 1) Legacy injection still present -> use it directly
-    if (window.ethereum && window.ethereum.request) {
-        var metamaskInstalled = true;
-        connectWallet(window.ethereum);
-        return;
-    }
+    // Discovery strategy (per MetaMask docs & EIP-6963):
+    //
+    // * EIP-6963 is the PRIMARY mechanism - MetaMask explicitly recommends it
+    //   over window.ethereum. Wallets announce themselves with a stable
+    //   reverse-DNS id `info.rdns` (MetaMask == 'io.metamask',
+    //   Phantom == 'app.phantom', Coinbase == 'com.coinbase.wallet', ...).
+    // * Because Phantom (and others) also inject window.ethereum, grabbing that
+    //   injected provider synchronously on load can pick the WRONG wallet and
+    //   race MetaMask's own extension-selection (the "Unexpected error"). So we
+    //   let EIP-6963 announce first, prefer MetaMask by rdns, and only fall
+    //   back to the injected provider if nothing (better) was found.
+    //
+    // Note: we deliberately do NOT identify MetaMask via `isMetaMask` or its
+    // display name - MetaMask's own docs flag `isMetaMask` as non-standard and
+    // say other wallets may also set it true. `rdns` is the stable id to select on.
 
-    // 2) EIP-6963 discovery (modern MetaMask and other wallets)
     var providers = [];
     var connected = false;
+
+    function providerKey(detail) {
+        if (!detail || !detail.info) return null;
+        return detail.info.rdns || detail.info.uuid || detail.info.name;
+    }
+
+    function isMetaMask(p) {
+        return p && p.info && p.info.rdns &&
+               p.info.rdns.toLowerCase() === 'io.metamask';
+    }
+
     function announceProvider(detail) {
         if (!detail || !detail.provider) return;
-        // Skip duplicates (some wallets announce more than once, which can make
-        // MetaMask's own selectExtension step race and throw "Unexpected error").
-        var uuid = detail.info && (detail.info.uuid || detail.info.name);
-        if (uuid && providers.some(function(p) {
-            var u2 = p.info && (p.info.uuid || p.info.name);
-            return u2 === uuid;
-        })) return;
+        // De-duplicate. Some wallets announce more than once (and can reappear
+        // under a fresh uuid per session), which is what makes MetaMask's own
+        // selectExtension step race. Stable key is rdns, then uuid, then name.
+        var key = providerKey(detail);
+        if (key && providers.some(function(p) { return providerKey(p) === key; })) return;
         providers.push(detail);
         tryConnect();
     }
+
     function tryConnect() {
         if (connected) return;
-        // Prefer MetaMask if present, otherwise the first announced wallet
-        var mm = providers.find(function(p) {
-            return p.info && p.info.name && p.info.name.toLowerCase().indexOf('metamask') !== -1;
-        });
-        var chosen = mm || providers[0];
-        if (chosen) {
+        // If MetaMask is announced, connect to it immediately. Otherwise HOLD:
+        // do NOT bind to whichever wallet happens to announce first (Phantom can
+        // beat MetaMask in announcement order). We settle after the announce
+        // window in the timeout below, so MetaMask always wins when present.
+        var mm = providers.find(isMetaMask);
+        if (mm) {
             connected = true;
-            var metamaskInstalled = true;
-            connectWallet(chosen.provider);
+            window.metamaskInstalled = true;
+            connectWallet(mm.provider);
         }
     }
+
     window.addEventListener('eip6963:announceProvider', function(e) {
         announceProvider(e.detail);
     });
-    // Ask wallets to announce themselves
+    // Ask wallets to announce themselves.
     window.dispatchEvent(new Event('eip6963:requestProvider'));
 
-    // 3) Nothing found after a short delay -> show the install prompt
+    // After the announce window, settle on the best wallet: MetaMask if present,
+    // otherwise the first announced wallet, otherwise the legacy injected
+    // provider (covers older wallets that don't implement EIP-6963 yet).
     setTimeout(function() {
-        if (!connected && !window.ethereum) {
+        if (connected) return;
+        var chosen = providers.find(isMetaMask) || providers[0];
+        if (chosen) {
+            connected = true;
+            window.metamaskInstalled = true;
+            connectWallet(chosen.provider);
+            return;
+        }
+        if (window.ethereum && window.ethereum.request) {
+            connected = true;
+            window.metamaskInstalled = true;
+            connectWallet(window.ethereum);
+        }
+    }, 600);
+
+    // Nothing found at all -> install prompt.
+    setTimeout(function() {
+        if (!connected) {
             noWalletFound();
         }
-    }, 1500);
+    }, 2500);
 }
 
 detectWallet();
