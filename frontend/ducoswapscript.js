@@ -637,6 +637,18 @@ function connectWallet(provider) {
             alert("Error, current chainId is " + chainId + ", please switch to BSC/MATIC/CELO and refresh this page");
             window.correctRpc = false;
         }
+    }).catch(function(err) {
+        // MetaMask can reject the connect request with its generic
+        // "Unexpected error" (its own selectExtension step failed). Don't let
+        // that surface as an unhandled rejection; report it and reset state so
+        // the user can retry.
+        console.error("eth_requestAccounts failed:", err && err.message ? err.message : err);
+        window.correctRpc = false;
+        window.metamaskInstalled = false;
+        try {
+            document.getElementById("networklabel").innerHTML =
+                "Network : connection to wallet failed \u2014 please refresh and try again";
+        } catch (ignored) {}
     });
 }
 
@@ -657,6 +669,18 @@ function detectWallet() {
     // 2) EIP-6963 discovery (modern MetaMask and other wallets)
     var providers = [];
     var connected = false;
+    function announceProvider(detail) {
+        if (!detail || !detail.provider) return;
+        // Skip duplicates (some wallets announce more than once, which can make
+        // MetaMask's own selectExtension step race and throw "Unexpected error").
+        var uuid = detail.info && (detail.info.uuid || detail.info.name);
+        if (uuid && providers.some(function(p) {
+            var u2 = p.info && (p.info.uuid || p.info.name);
+            return u2 === uuid;
+        })) return;
+        providers.push(detail);
+        tryConnect();
+    }
     function tryConnect() {
         if (connected) return;
         // Prefer MetaMask if present, otherwise the first announced wallet
@@ -671,10 +695,7 @@ function detectWallet() {
         }
     }
     window.addEventListener('eip6963:announceProvider', function(e) {
-        if (e.detail && e.detail.provider) {
-            providers.push(e.detail);
-            tryConnect();
-        }
+        announceProvider(e.detail);
     });
     // Ask wallets to announce themselves
     window.dispatchEvent(new Event('eip6963:requestProvider'));

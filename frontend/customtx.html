@@ -33,7 +33,13 @@
 				addrs = await provider.eth.requestAccounts();
 				_chain = await provider.eth.getChainId();
 			} catch (e) {
-				alert(e);
+				// MetaMask can reject with its generic "Unexpected error" when its
+				// connect/extension-selection step fails (e.g. conflicting wallets).
+				if (e && e.message && e.message.indexOf("Unexpected error") !== -1) {
+					alert("MetaMask failed to connect (unexpected error). Please refresh, close any wallet popup, disable other wallet extensions, and retry.");
+				} else {
+					alert(e && e.message ? e.message : e);
+				}
 			}
 		}
 		
