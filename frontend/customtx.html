@@ -14,7 +14,7 @@
 					provider = new Web3(window.web3);
 					alert("web3 found");
 				}
-				addrs = await window.ethereum.enable();
+				addrs = await provider.eth.requestAccounts();
 				_chain = await provider.eth.getChainId();
 			} catch (e) {
 				alert(e);

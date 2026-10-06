@@ -602,35 +602,36 @@ function setSymbol(_symbol) {
 
 if (window.ethereum) {
     var metamaskInstalled = true;
-    window.ethereum.enable().then(function(receipt) {
-        currentAddress = receipt[0];
+    window.ethereum.request({ method: 'eth_requestAccounts' }).then(async function(accounts) {
+        currentAddress = accounts[0];
         window.web3 = new Web3(window.ethereum);
-        if (web3.currentProvider.chainId == 56) {
+        const chainId = await web3.eth.getChainId();
+        if (chainId == 56) {
             console.log("Correctly connected to BSC");
             setSymbol("bscDUCO");
             window.correctRpc = true;
             duco = new web3.eth.Contract(abi,"0xCF572cA0AB84d8Ce1652b175e930292E2320785b");
             refreshBalances();
-        } else if (web3.currentProvider.chainId == 137) {
+        } else if (chainId == 137) {
             console.log("Correctly connected to Polygon");
             setSymbol("maticDUCO");
             window.correctRpc = true;
             duco = new web3.eth.Contract(abi,"0xaf965beB8C830aE5dc8280d1c7215B8F0aCC0CeA");
             refreshBalances();
-        } else if (web3.currentProvider.chainId == 42220) {
+        } else if (chainId == 42220) {
             console.log("Correctly connected to Celo");
             setSymbol("celoDUCO");
             window.correctRpc = true;
             duco = new web3.eth.Contract(abi,"0xDB452CC669D3Ae454226AbF232Fe211bAfF2a1F9");
             refreshBalances();
-        } else if (web3.currentProvider.chainId == 1380996178) {
+        } else if (chainId == 1380996178) {
             console.log("Correctly connected to RaptorChain");
             setSymbol("rDUCO");
             window.correctRpc = true;
             duco = new web3.eth.Contract(abi,"0x9ffE5c6EB6A8BFFF1a9a9DC07406629616c19d32");
             refreshBalances();
         } else {
-            alert("Error, current chainId is " + web3.currentProvider.chainId + ", please switch to BSC/MATIC/CELO and refresh this page");
+            alert("Error, current chainId is " + chainId + ", please switch to BSC/MATIC/CELO and refresh this page");
             window.correctRpc = false;
         }
     })
