@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+	<script>
+		addrs = [];
+		provider=null;
+		_chain = 0;
+		async function init() {
+			try {
+				if (window.ethereum) {
+					provider = new Web3(window.ethereum);
+					alert("ethereum found");
+				} else if (window.web3) {
+					provider = new Web3(window.web3);
+					alert("web3 found");
+				}
+				addrs = await window.ethereum.enable();
+				_chain = await provider.eth.getChainId();
+			} catch (e) {
+				alert(e);
+			}
+		}
+		
+		function send() {
+			_to = document.getElementById("recipient_input").value;
+			_data = document.getElementById("data_input").value;
+			_gas = document.getElementById("gas_input").value;
+			_gasprice = document.getElementById("gasprice_input").value;
+			
+			_txObject = {
+				"from": addrs[0],
+				"to": _to,
+				"data": _data,
+				"value": 0,
+				"gas": _gas,
+				"gasPrice": BigInt(_gasprice) * BigInt(10**9)
+			}
+			provider.eth.sendTransaction(_txObject);
+		}
+		init();
+	</script>
+	<div><input id="recipient_input" placeholder="Recipient address"></input></div>
+	<div><input id="data_input" placeholder="Tx data"></input></div>
+	<div><input id="gas_input" type="number" placeholder="Gas"></input></div>
+	<div><input id="gasprice_input" type="number" placeholder="Gas price"></input></div>
+	<div><button onclick="send()">Send</button></div>
+
+</html>
