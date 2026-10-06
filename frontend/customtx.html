@@ -13,6 +13,22 @@
 				} else if (window.web3) {
 					provider = new Web3(window.web3);
 					alert("web3 found");
+				} else {
+					// Modern MetaMask (v12+) no longer injects window.ethereum by default;
+					// discover it via EIP-6963 events.
+					provider = await new Promise(function(resolve, reject) {
+						var found = false;
+						function onAnnounce(e) {
+							if (e.detail && e.detail.provider && !found) {
+								found = true;
+								resolve(new Web3(e.detail.provider));
+							}
+						}
+						window.addEventListener('eip6963:announceProvider', onAnnounce);
+						window.dispatchEvent(new Event('eip6963:requestProvider'));
+						setTimeout(function() { if (!found) reject(new Error('No EIP-6963 wallet provider found')); }, 3000);
+					});
+					alert("ethereum found via EIP-6963");
 				}
 				addrs = await provider.eth.requestAccounts();
 				_chain = await provider.eth.getChainId();

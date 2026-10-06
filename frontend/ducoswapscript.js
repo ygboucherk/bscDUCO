@@ -600,11 +600,14 @@ function setSymbol(_symbol) {
     ticker = _symbol;
 }
 
-if (window.ethereum) {
-    var metamaskInstalled = true;
-    window.ethereum.request({ method: 'eth_requestAccounts' }).then(async function(accounts) {
+// Connect using a discovered EIP-1193 provider.
+// (Modern MetaMask v12+ no longer auto-injects window.ethereum;
+//  it announces providers via EIP-6963 events instead.)
+function connectWallet(provider) {
+    window.ethereum = provider;
+    window.web3 = new Web3(provider);
+    return provider.request({ method: 'eth_requestAccounts' }).then(async function(accounts) {
         currentAddress = accounts[0];
-        window.web3 = new Web3(window.ethereum);
         const chainId = await web3.eth.getChainId();
         if (chainId == 56) {
             console.log("Correctly connected to BSC");
@@ -634,12 +637,57 @@ if (window.ethereum) {
             alert("Error, current chainId is " + chainId + ", please switch to BSC/MATIC/CELO and refresh this page");
             window.correctRpc = false;
         }
-    })
-} else {
+    });
+}
+
+function noWalletFound() {
     window.metamaskInstalled = false;
     document.getElementById("networklabel").innerHTML = "Network : Please install a web3 compatible wallet";
     alert("No Web3-compatible wallet installed, please consider installing one !")
 }
+
+function detectWallet() {
+    // 1) Legacy injection still present -> use it directly
+    if (window.ethereum && window.ethereum.request) {
+        var metamaskInstalled = true;
+        connectWallet(window.ethereum);
+        return;
+    }
+
+    // 2) EIP-6963 discovery (modern MetaMask and other wallets)
+    var providers = [];
+    var connected = false;
+    function tryConnect() {
+        if (connected) return;
+        // Prefer MetaMask if present, otherwise the first announced wallet
+        var mm = providers.find(function(p) {
+            return p.info && p.info.name && p.info.name.toLowerCase().indexOf('metamask') !== -1;
+        });
+        var chosen = mm || providers[0];
+        if (chosen) {
+            connected = true;
+            var metamaskInstalled = true;
+            connectWallet(chosen.provider);
+        }
+    }
+    window.addEventListener('eip6963:announceProvider', function(e) {
+        if (e.detail && e.detail.provider) {
+            providers.push(e.detail);
+            tryConnect();
+        }
+    });
+    // Ask wallets to announce themselves
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+
+    // 3) Nothing found after a short delay -> show the install prompt
+    setTimeout(function() {
+        if (!connected && !window.ethereum) {
+            noWalletFound();
+        }
+    }, 1500);
+}
+
+detectWallet();
 
 async function unwrapDUCO() {
     amount = document.getElementById("amountInput").value
